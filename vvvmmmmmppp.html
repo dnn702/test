@@ -56,7 +56,7 @@ Do not press the black ball button, or it will crash as well.
 <script>
   // 数字をフォーマットする関数
   function formatNumber(num) {
-    const units = ['k', 'm', 'b', 't', 'q', 'Q', 's', 'S', 'o', 'O', 'n', 'N', 'd', 'D', 'u', 'U', 'l', 'L', 'h', 'H', 'i', 'I', 'j', 'J', 'g', 'G', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', 'nd', 'ND', 'ss', 'SS', 'nn', 'NN', '!'];
+    const units = ['k', 'm', 'b', 't', 'q', 'Q', 's', 'S', 'p', 'P', 'o', 'O', 'n', 'N', 'd', 'D', 'u', 'U', 'l', 'L', 'h', 'H', 'i', 'I', 'j', 'J', 'g', 'G', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', 'nd', 'ND', 'ss', 'SS', 'nn', 'NN', 'xx', 'XX', 'cc', 'CC', 'Uj', 'sS', '◘', '◘◘', '∞', '✤', '✣', '?', '??', '?!', '!?', '!', '!!'];
     let unitIndex = -1;
     let value = num;
     while (value >= 1000 && unitIndex < units.length - 1) {
