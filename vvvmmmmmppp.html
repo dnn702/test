@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Idle Balls Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    #game {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 100px;
+    }
+    canvas {
+      border: 1px solid black;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <h3>いちゃもんくみえを消しっちまうやつです。</h3>
+<h3>ホーム画面に追加できます。</h3>
+<div id="game">
+  <canvas id="gameCanvas"></canvas>
+  Do not press the orange ball button, or it will crash.
+Do not press the black ball button, or it will crash as well.
+オレンジボール ボタンは押さないでください。クラッシュします。
+黒ボール ボタンも押さないでください。同じくクラッシュします。
+  <p>ポイント: <span id="points">0</span></p>
+  <p>攻撃力: <span id="attackPower">1</span></p>
+  <p>ステージ: <span id="currentLevel">1</span></p>
+  <button id="upgradeButton" disabled>攻撃力アップ (100 ポイント)</button>
+  <button id="buyOrangeBall" disabled>オレンジボール (200 ポイント)</button>
+  <button id="buyBlackBall" disabled>黒ボール (300 ポイント)</button>
+</div>
+
+<script>
+  // 数字をフォーマットする関数
+  function formatNumber(num) {
+    const units = ['k', 'm', 'b', 't', 'q', 'Q', 's', 'S', 'o', 'O', 'n', 'N', 'd', 'D', 'u', 'U', 'l', 'L', 'h', 'H', 'i', 'I', 'j', 'J', 'g', 'G', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', 'nd', 'ND', 'ss', 'SS', 'nn', 'NN', '!'];
+    let unitIndex = -1;
+    let value = num;
+    while (value >= 1000 && unitIndex < units.length - 1) {
+      value /= 1000;
+      unitIndex++;
+    }
+    return value.toFixed(1) + (unitIndex >= 0 ? units[unitIndex] : '');
+  }
+
+  // ゲーム状態
+  let points = 0;
+  let attackPower = 1;
+  let currentLevel = 1;
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const pointsElement = document.getElementById('points');
+  const attackPowerElement = document.getElementById('attackPower');
+  const upgradeButton = document.getElementById('upgradeButton');
+  const buyOrangeBallButton = document.getElementById('buyOrangeBall');
+  const buyBlackBallButton = document.getElementById('buyBlackBall');
+  const currentLevelElement = document.getElementById('currentLevel');
+
+  const initialHp = 10;
+  let projectiles = [];
+  let balls = [];
+
+  const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#00ffff'];
+
+  function createBall(x, y, hp) {
+    return { x, y, radius: 50, hp, color: colors[0] };
+  }
+
+  function drawBalls() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    balls.forEach(ball => {
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = ball.color;
+      ctx.fill();
+      ctx.stroke();
+      ctx.font = '20px Arial';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.fillText(formatNumber(ball.hp), ball.x, ball.y + 5);
+    });
+
+    projectiles.forEach(projectile => {
+      ctx.beginPath();
+      ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2);
+      ctx.fillStyle = projectile.color;
+      ctx.fill();
+      ctx.stroke();
+    });
+  }
+
+  function initializeBalls() {
+    balls.length = 0;
+    const maxHpForLevel = initialHp * Math.pow(1.5, currentLevel - 1);
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    for (let i = 0; i < 10; i++) {
+      const x = Math.random() * (canvasWidth - 100) + 50;
+      const y = Math.random() * (canvasHeight - 100) + 50;
+      balls.push(createBall(x, y, maxHpForLevel));
+    }
+    drawBalls();
+  }
+
+  function createProjectile(x, y, color) {
+    return { x, y, radius: 10, color, vx: Math.random() * 4 - 8, vy: Math.random() * 4 - 8 };
+  }
+
+  // ボールの動きと衝突判定の更新
+  function updateProjectiles() {
+    projectiles.forEach((projectile, index) => {
+      projectile.x += projectile.vx;
+      projectile.y += projectile.vy;
+
+      // 画面端で跳ね返る
+      if (projectile.x - projectile.radius <= 0 || projectile.x + projectile.radius >= canvas.width) {
+        projectile.vx = -projectile.vx;  // x軸方向で反転
+      }
+      if (projectile.y - projectile.radius <= 0 || projectile.y + projectile.radius >= canvas.height) {
+        projectile.vy = -projectile.vy;  // y軸方向で反転
+      }
+
+      // 円の障害物との衝突判定
+      balls.forEach(ball => {
+        const distance = Math.sqrt(Math.pow(projectile.x - ball.x, 2) + Math.pow(projectile.y - ball.y, 2));
+        if (distance <= ball.radius + projectile.radius) {
+          // 衝突したらボールのHPを減らす
+          ball.hp -= attackPower;
+          points += attackPower;
+          if (ball.hp <= 0) {
+            balls = balls.filter(b => b !== ball);
+          }
+
+          // ボールの色を更新
+          const colorIndex = Math.min(Math.floor((ball.hp / (initialHp * Math.pow(1.5, currentLevel - 1))) * (colors.length - 1)), colors.length - 1);
+          ball.color = colors[colorIndex];
+
+          // ボールを跳ね返らせる
+          projectile.vx = -projectile.vx;
+          projectile.vy = -projectile.vy;
+        }
+      });
+    });
+
+    updatePoints();
+    drawBalls();
+  }
+
+  buyOrangeBallButton.addEventListener('click', function() {
+    if (points >= 200) {
+      points -= 200;
+      const projectile = createProjectile(canvas.width / 2, canvas.height / 2, '#FFA500');
+      projectiles.push(projectile);
+      updatePoints();
+      drawBalls();
+    }
+  });
+
+  buyBlackBallButton.addEventListener('click', function() {
+    if (points >= 300) {
+      points -= 300;
+      const projectile = createProjectile(canvas.width / 2, canvas.height / 2, '#000000');
+      projectiles.push(projectile);
+      updatePoints();
+      drawBalls();
+    }
+  });
+
+  upgradeButton.addEventListener('click', function() {
+    if (points >= 100) {
+      points -= 100;
+      attackPower++;
+      updatePoints();
+      updateAttackPower();
+    }
+  });
+
+  function updatePoints() {
+    pointsElement.textContent = formatNumber(points);
+    upgradeButton.disabled = points < 100;
+    buyOrangeBallButton.disabled = points < 200;
+    buyBlackBallButton.disabled = points < 300;
+  }
+
+  function updateAttackPower() {
+    attackPowerElement.textContent = formatNumber(attackPower);
+  }
+
+  canvas.addEventListener('click', function(e) {
+    const x = e.offsetX;
+    const y = e.offsetY;
+
+    balls.forEach(ball => {
+      const distance = Math.sqrt(Math.pow(x - ball.x, 2) + Math.pow(y - ball.y, 2));
+      if (distance <= ball.radius) {
+        ball.hp -= attackPower;
+        points += attackPower;
+
+        if (ball.hp <= 0) {
+          balls = balls.filter(b => b !== ball);
+        }
+
+        const colorIndex = Math.min(Math.floor((ball.hp / (initialHp * Math.pow(1.5, currentLevel - 1))) * (colors.length - 1)), colors.length - 1);
+        ball.color = colors[colorIndex];
+      }
+    });
+
+    updatePoints();
+    drawBalls();
+
+    if (balls.length === 0) {
+      currentLevel++;
+      currentLevelElement.textContent = currentLevel;
+      initializeBalls();
+    }
+  });
+
+  function initializeGame() {
+    canvas.width = window.innerWidth * 0.8;
+    canvas.height = window.innerHeight * 0.6;
+    initializeBalls();
+  }
+
+  initializeGame();
+
+  window.addEventListener('resize', function() {
+    initializeGame();
+  });
+
+  // ゲームのループ
+  function gameLoop() {
+    updateProjectiles();
+    requestAnimationFrame(gameLoop);
+  }
+
+  gameLoop();  // ゲームを開始
+</script>
+
+</body>
+</html>
