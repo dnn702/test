@@ -193,7 +193,7 @@ Do not press the black ball button, or it will crash as well.
   upgradeButton.addEventListener('click', function() {
     if (points >= 100) {
       points -= 100;
-      attackPower++;
+      attackPower *= 1.5;
       updatePoints();
       updateAttackPower();
     }
