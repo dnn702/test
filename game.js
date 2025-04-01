@@ -21,7 +21,7 @@ let attackPower = 1;   // 初期攻撃力
 let points = 0;        // 初期ポイント
 let upgradeCost = 10;  // 初期攻撃力アップに必要なポイント
 let stage = 1;         // 初期ステージ
-let numCircles = 5;    // 初期の障害物の数
+let numCircles = 10;    // 初期の障害物の数
 let circlesDefeated = 0; // 倒した円の数
 let circleData = [];   // 各円のデータ（HPなど）
 
@@ -42,12 +42,14 @@ function getRandomPosition() {
 // HPに応じて円の色を変える関数
 function getColorBasedOnHP(hp, maxHP) {
     const percentage = hp / maxHP;
-    if (percentage > 0.75) {
+    if (percentage > 0.80) {
         return 'red'; // HPが多い時は赤
-    } else if (percentage > 0.5) {
+    } else if (percentage > 0.60) {
         return 'orange'; // HPが中くらいの時は橙色
-    } else if (percentage > 0.25) {
+    } else if (percentage > 0.40) {
         return 'yellow'; // HPが少ない時は黄色
+    } else if (percentage > 0.20) {
+        return 'greenyellow'; // HPが少ない時は黄色
     } else {
         return 'lightblue'; // HPが非常に少ない時は水色
     }
@@ -141,7 +143,7 @@ function nextStage() {
         circlesDefeated = 0;  // 倒した円の数をリセット
 
         // ステージの内容を更新
-        numCircles += 2;  // 各ステージで障害物の数を増加
+        numCircles += 0;  // 各ステージで障害物の数を増加
         stageElement.textContent = `ステージ: ${stage}`;  // ステージ表示を更新
         generateCircles();  // 新しいステージの円を生成
     }
