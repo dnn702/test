@@ -5,7 +5,7 @@ function formatNumbers(num) {
     if (num < 1000) {
         return num.toFixed(0); // 1,000未満の数字には小数点なし
     } else if (num >= 1e24) {
-        return (num / 1e12).toFixed(1) + 'U'; // 兆 (小数点1桁)
+        return (num / 1e12).toFixed(1) + 'Z'; // 兆 (小数点1桁)
     } else if (num >= 1e21) {
         return (num / 1e9).toFixed(1) + 'u'; // 億 (小数点1桁)
     } else if (num >= 1e18) {
