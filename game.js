@@ -4,14 +4,22 @@ let currentCircles = 0; // 現在の障害物数
 function formatNumber(num) {
     if (num < 1000) {
         return num.toFixed(0); // 1,000未満の数字には小数点なし
+    } else if (num >= 1e24) {
+        return (num / 1e12).toFixed(1) + 'U'; // 兆 (小数点1桁)
+    } else if (num >= 1e21) {
+        return (num / 1e9).toFixed(1) + 'u'; // 億 (小数点1桁)
+    } else if (num >= 1e18) {
+        return (num / 1e6).toFixed(1) + 'Q'; // 百万 (小数点1桁)
+    } else if (num >= 1e15) {
+        return (num / 1e3).toFixed(1) + 'q'; // 千 (小数点1桁)
     } else if (num >= 1e12) {
-        return (num / 1e12).toFixed(1) + 'T'; // 兆 (小数点1桁)
+        return (num / 1e12).toFixed(1) + 't'; // 兆 (小数点1桁)
     } else if (num >= 1e9) {
-        return (num / 1e9).toFixed(1) + 'B'; // 億 (小数点1桁)
+        return (num / 1e9).toFixed(1) + 'b'; // 億 (小数点1桁)
     } else if (num >= 1e6) {
-        return (num / 1e6).toFixed(1) + 'M'; // 百万 (小数点1桁)
+        return (num / 1e6).toFixed(1) + 'm'; // 百万 (小数点1桁)
     } else if (num >= 1e3) {
-        return (num / 1e3).toFixed(1) + 'K'; // 千 (小数点1桁)
+        return (num / 1e3).toFixed(1) + 'k'; // 千 (小数点1桁)
     }
     return num.toString(); // それ以外はそのまま（小数点なし）
 }
