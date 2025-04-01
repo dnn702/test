@@ -1,7 +1,7 @@
 let maxCircles = 16; // 最大の障害物数
 let currentCircles = 0; // 現在の障害物数
 // 数字をフォーマットする関数（1,000 → 1k, 1,000,000 → 1M など）
-function formatNumber(num) {
+function formatNumbers(num) {
     if (num < 1000) {
         return num.toFixed(0); // 1,000未満の数字には小数点なし
     } else if (num >= 1e24) {
@@ -23,7 +23,16 @@ function formatNumber(num) {
     }
     return num.toString(); // それ以外はそのまま（小数点なし）
 }
-
+function formatNumber(num) {
+    const units = ['k', 'm', 'b', 't', 'q', 'Q', 's', 'S', 'p', 'P', 'o', 'O', 'n', 'N', 'd', 'D', 'u', 'U', 'l', 'L', 'h', 'H', 'i', 'I', 'j', 'J', 'g', 'G', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', 'nd', 'ND', 'ss', 'SS', 'nn', 'NN', 'xx', 'XX', 'cc', 'CC', 'Uj', 'sS', '◘', '◘◘', '∞', '✤', '✣', 'ꕤ', '❁', '❖', '🀑', '🀒', '🀓', '🀔', '🀕', '🀖', '🀗', '🀘', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅', 'is', 'IS', 'oo', 'OO', '🀆', '🀙', '🀚', '🀛', '🀜', '🀝', '🀞', '🀟', '🀠', '🀡', 'ꕢ', 'NJ', 'ꖜ', 'ꖔ', 'ꖛ', 'ꖊ', 'ꖉ', 'ꖅ', 'ꖌ', 'ꖋ', 'ꗵ', 'ꗶ', '?', '??', '?!', '!?', '!', '!!'];
+    let unitIndex = -1;
+    let value = num;
+    while (value >= 1000 && unitIndex < units.length - 1) {
+      value /= 1000;
+      unitIndex++;
+    }
+    return value.toFixed(1) + (unitIndex >= 0 ? units[unitIndex] : '');
+}
 // 初期設定
 let attackPower = 1;   // 初期攻撃力
 let points = 0;        // 初期ポイント
