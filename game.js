@@ -33,7 +33,7 @@ function formatNumber(num) {
     }
     return value.toFixed(1) + (unitIndex >= 0 ? units[unitIndex] : '');
 }
-// 初期設定
+// 初期設teino
 let attackPower = 1;   // 初期攻撃力
 let points = 0;        // 初期ポイント
 let upgradeCost = 10;  // 初期攻撃力アップに必要なポイント
